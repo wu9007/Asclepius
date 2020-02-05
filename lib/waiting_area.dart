@@ -1,95 +1,76 @@
 import 'dart:async';
 
-import 'package:Asclepius/diagnosis_room.dart';
+import 'package:Asclepius/diagnostic_reminder.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class WaitingArea extends StatefulWidget {
+  final String doctorChannelId;
+
+  WaitingArea(this.doctorChannelId, {Key key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => WaitingAreaState();
 }
 
 class WaitingAreaState extends State<WaitingArea> {
-  final _channelController = TextEditingController();
-
-  bool _validateError = false;
-
   @override
   void dispose() {
-    _channelController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('候诊区')),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: 400,
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Expanded(
-                      child: TextField(
-                    controller: _channelController,
-                    decoration: InputDecoration(
-                      errorText:
-                          _validateError ? 'Channel name is mandatory' : null,
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                      hintText: 'Channel name',
-                    ),
-                  ))
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: RaisedButton(
-                        onPressed: onJoin,
-                        child: Text('Join'),
-                        color: Colors.blueAccent,
-                        textColor: Colors.white,
-                      ),
-                    )
-                  ],
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                SizedBox(
+                  height: 30,
+                  child: Text(
+                    '医生信息',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
-              )
-            ],
+                Container(
+                  height: 160,
+                  child: Placeholder(),
+                ),
+                Divider(),
+                SizedBox(
+                  height: 30,
+                  child: Text(
+                    '问诊队列',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                Container(
+                  height: 160,
+                  child: Placeholder(),
+                ),
+                SizedBox(height: 50),
+                MaterialButton(
+                  color: Colors.amber,
+                  child: Text(
+                    '挂    号',
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                  onPressed: () {
+                    Future.delayed(Duration(seconds: 5), () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) =>
+                              DiagnosticReminder(widget.doctorChannelId)));
+                    });
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Future<void> onJoin() async {
-    setState(() {
-      _channelController.text.isEmpty
-          ? _validateError = true
-          : _validateError = false;
-    });
-    if (_channelController.text.isNotEmpty) {
-      await _handleCameraAndMic();
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DiagnosisRoom(
-            channelId: _channelController.text,
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _handleCameraAndMic() async {
-    await PermissionHandler().requestPermissions(
-      [PermissionGroup.camera, PermissionGroup.microphone],
     );
   }
 }

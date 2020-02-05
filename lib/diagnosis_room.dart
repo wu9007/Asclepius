@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class DiagnosisRoom extends StatefulWidget {
   final String channelId;
 
-  const DiagnosisRoom({Key key, this.channelId}) : super(key: key);
+  const DiagnosisRoom(this.channelId, {Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => DiagnosisRoomState();
@@ -13,6 +13,7 @@ class DiagnosisRoom extends StatefulWidget {
 
 class DiagnosisRoomState extends State<DiagnosisRoom> {
   static final _users = <int>[];
+  bool _localTop = true;
   final _infoStrings = <String>[];
   bool muted = false;
 
@@ -117,17 +118,14 @@ class DiagnosisRoomState extends State<DiagnosisRoom> {
   Widget _toolbar() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 48),
+      padding: const EdgeInsets.symmetric(vertical: 30),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RawMaterialButton(
             onPressed: _onToggleMute,
-            child: Icon(
-              muted ? Icons.mic_off : Icons.mic,
-              color: muted ? Colors.white : Colors.blueAccent,
-              size: 20.0
-            ),
+            child: Icon(muted ? Icons.mic_off : Icons.mic,
+                color: muted ? Colors.white : Colors.blueAccent, size: 20.0),
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: muted ? Colors.blueAccent : Colors.white,
@@ -168,6 +166,32 @@ class DiagnosisRoomState extends State<DiagnosisRoom> {
     switch (views.length) {
       case 1:
         return views[0];
+      case 2:
+        return Stack(
+          children: <Widget>[
+            _localTop ? views[1] : views[0],
+            Positioned(
+              child: Container(
+                height: 120,
+                width: 70,
+                child: _localTop ? views[0] : views[1],
+              ),
+              top: 5,
+              right: 5,
+            ),
+            Positioned(
+              child: GestureDetector(
+                child: Container(
+                    height: 120, width: 70, color: Colors.transparent),
+                onTap: () {
+                  this.setState(() => _localTop = !_localTop);
+                },
+              ),
+              top: 5,
+              right: 5,
+            ),
+          ],
+        );
       default:
     }
     return Container();
@@ -176,9 +200,8 @@ class DiagnosisRoomState extends State<DiagnosisRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('会诊室')),
-      backgroundColor: Colors.black,
-      body: Center(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
         child: Stack(
           children: <Widget>[
             _viewRows(),

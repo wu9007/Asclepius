@@ -1,3 +1,3 @@
 # Asclepius
 
-This is a remote consultation tool designed for doctors and patients.
+This is a remote diagnostic tools designed for doctors and patients.
